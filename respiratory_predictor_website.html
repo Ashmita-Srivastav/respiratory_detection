@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PneumoScan AI — Respiratory Disease Prediction</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=JetBrains+Mono:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <link href="index.css" rel="stylesheet">
+</head>
+
+<body>
+
+  <!-- Background -->
+  <div class="bg-grid"></div>
+  <div class="bg-orb orb1"></div>
+  <div class="bg-orb orb2"></div>
+  <div class="bg-orb orb3"></div>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">
+        <div class="logo-icon">🫁</div>
+        PneumoScan<span style="color:var(--cyan)">AI</span>
+      </a>
+      <div class="nav-links">
+        <button class="nav-link active" onclick="smoothScrollTo('#app')">Diagnose</button>
+        <button class="nav-link" onclick="smoothScrollTo('#db-section')">Patient DB</button>
+        <button class="nav-link" onclick="showAbout()">About Model</button>
+      </div>
+      <button class="nav-badge" onclick="smoothScrollTo('#app')">+ New Analysis</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrapper">
+      <div class="hero-tag">
+        <span class="tag-dot"></span>
+        Powered by CNN + BiLSTM · Coswara Dataset
+      </div>
+      <h1>Diagnose Respiratory<br>Disease from <span class="grad">Voice Alone</span></h1>
+      <p>Upload a 5-second cough or breathing recording. Our AI model analyses MFCC patterns to detect COVID-19, Asthma,
+        Pneumonia, Bronchitis, COPD & more.</p>
+      <div class="hero-cta">
+        <button class="btn-primary" onclick="smoothScrollTo('#app')">🎤 Start Analysis</button>
+        <button class="btn-secondary" onclick="smoothScrollTo('#db-section')">📊 View Patient Records</button>
+      </div>
+
+      <!-- Animated waveform -->
+      <div class="hero-wave" id="heroWave"></div>
+
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-num" id="statPatients">0</div>
+          <div class="stat-label">Patients Analysed</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">7</div>
+          <div class="stat-label">Disease Classes</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">94.2%</div>
+          <div class="stat-label">Model Accuracy</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">~3s</div>
+          <div class="stat-label">Inference Time</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN APP -->
+  <section id="app">
+    <div class="wrapper">
+      <!-- STEPPER -->
+      <div class="stepper">
+        <div class="step active" id="step1">
+          <div class="step-circle">01</div>
+          <div class="step-label">Patient Info</div>
+        </div>
+        <div class="step" id="step2">
+          <div class="step-circle">02</div>
+          <div class="step-label">Upload Voice</div>
+        </div>
+        <div class="step" id="step3">
+          <div class="step-circle">03</div>
+          <div class="step-label">AI Analysis</div>
+        </div>
+      </div>
+
+      <!-- ===== STEP 1: PATIENT FORM ===== -->
+      <div class="step-content active panel" id="content1">
+        <div style="margin-bottom:28px">
+          <div class="section-label">Step 01</div>
+          <h2 class="section-title">Patient Information</h2>
+          <p style="color:var(--text2);font-size:0.9rem">Fill in the patient's details. All data is stored locally in
+            your browser.</p>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>FULL NAME *</label>
+            <input type="text" id="patName" placeholder="e.g. Arjun Sharma" required>
+          </div>
+          <div class="form-group">
+            <label>PATIENT ID</label>
+            <input type="text" id="patId" placeholder="Auto-generated" readonly style="opacity:0.6">
+          </div>
+          <div class="form-group">
+            <label>AGE *</label>
+            <input type="number" id="patAge" placeholder="e.g. 34" min="1" max="120">
+          </div>
+          <div class="form-group">
+            <label>GENDER</label>
+            <select id="patGender">
+              <option value="">Select...</option>
+              <option>Male</option>
+              <option>Female</option>
+              <option>Other</option>
+              <option>Prefer not to say</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>PHONE NUMBER</label>
+            <input type="tel" id="patPhone" placeholder="+91 98765 43210">
+          </div>
+          <div class="form-group">
+            <label>EMAIL</label>
+            <input type="email" id="patEmail" placeholder="patient@email.com">
+          </div>
+          <div class="form-group">
+            <label>ALLERGIES</label>
+            <input type="text" id="patAllergies" placeholder="e.g. Penicillin, Dust, Pollen, Peanuts...">
+          </div>
+          <div class="form-group full">
+            <label>SYMPTOMS (select all that apply)</label>
+            <div class="checkbox-grid">
+              <label class="checkbox-item"><input type="checkbox" value="Fever"> 🌡️ Fever</label>
+              <label class="checkbox-item"><input type="checkbox" value="Cough"> 😮 Cough</label>
+              <label class="checkbox-item"><input type="checkbox" value="Breathlessness"> 😮‍💨 Breathlessness</label>
+              <label class="checkbox-item"><input type="checkbox" value="Fatigue"> 😴 Fatigue</label>
+              <label class="checkbox-item"><input type="checkbox" value="Sore Throat"> 🤒 Sore Throat</label>
+              <label class="checkbox-item"><input type="checkbox" value="Chest Pain"> ❤️‍🩹 Chest Pain</label>
+              <label class="checkbox-item"><input type="checkbox" value="Wheezing"> 🌬️ Wheezing</label>
+              <label class="checkbox-item"><input type="checkbox" value="Runny Nose"> 🤧 Runny Nose</label>
+              <label class="checkbox-item"><input type="checkbox" value="None"> ✅ None</label>
+            </div>
+          </div>
+          <div class="form-group full">
+            <label>MEDICAL HISTORY / NOTES</label>
+            <textarea id="patNotes" placeholder="Pre-existing conditions, medications, allergies..."></textarea>
+          </div>
+        </div>
+
+        <div style="margin-top:32px;display:flex;justify-content:flex-end">
+          <button class="btn-primary" onclick="goToStep2()">
+            Continue to Upload &rarr;
+          </button>
+        </div>
+      </div>
+
+      <!-- ===== STEP 2: AUDIO UPLOAD ===== -->
+      <div class="step-content panel" id="content2">
+        <div style="margin-bottom:28px">
+          <div class="section-label">Step 02</div>
+          <h2 class="section-title">Voice Sample Upload</h2>
+          <p style="color:var(--text2);font-size:0.9rem">Upload a <strong style="color:var(--text)">cough, deep
+              breath,</strong> or <strong style="color:var(--text)">vowel sound</strong> recording (5–10 sec ideal).</p>
+        </div>
+
+        <!-- Upload zone -->
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()"
+          ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+          <div class="upload-icon">🎙️</div>
+          <h3>Drop your audio file here</h3>
+          <p>or click to browse from your device</p>
+          <div class="upload-formats">
+            <span class="format-tag">.WAV</span>
+            <span class="format-tag">.MP3</span>
+            <span class="format-tag">.OGG</span>
+            <span class="format-tag">.FLAC</span>
+            <span class="format-tag">.M4A</span>
+          </div>
+        </div>
+        <input type="file" id="fileInput" accept="audio/*" style="display:none" onchange="handleFileSelect(event)">
+
+        <!-- Audio preview -->
+        <div class="audio-preview" id="audioPreview">
+          <div class="audio-meta">
+            <div class="audio-thumb">🎵</div>
+            <div>
+              <div class="audio-name" id="audioName">—</div>
+              <div class="audio-size" id="audioSize">—</div>
+            </div>
+            <button onclick="clearAudio()"
+              style="margin-left:auto;background:rgba(255,77,109,0.12);border:1px solid rgba(255,77,109,0.3);color:var(--red);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:0.8rem">✕
+              Remove</button>
+          </div>
+          <div class="waveform-container" id="waveformViz"></div>
+          <audio id="audioPlayer" controls></audio>
+        </div>
+
+        <!-- OR divider -->
+        <div class="or-divider">or record directly</div>
+
+        <!-- Record section -->
+        <div class="record-section">
+          <div class="record-timer" id="recordTimer" style="display:none">00:00</div>
+          <button class="record-btn" id="recordBtn" onclick="toggleRecord()" title="Start/Stop Recording">
+            <span id="recordIcon">🎙</span>
+          </button>
+          <div class="record-status" id="recordStatus">Click to start recording</div>
+        </div>
+
+        <div style="margin-top:40px;display:flex;justify-content:space-between">
+          <button class="btn-secondary" onclick="goToStep1()">&larr; Back</button>
+          <button class="btn-primary" onclick="startAnalysis()">🔬 Analyse Audio &rarr;</button>
+        </div>
+      </div>
+
+      <!-- ===== STEP 3: ANALYSIS + RESULTS ===== -->
+      <div class="step-content panel" id="content3">
+        <!-- Scanning UI -->
+        <div class="analysis-overlay" id="analysisAnim">
+          <div class="scan-ring">
+            <svg viewBox="0 0 100 100">
+              <circle class="gauge-track" cx="50" cy="50" r="42" />
+              <circle cx="50" cy="50" r="42" fill="none" stroke="url(#scanGrad)" stroke-width="4" stroke-linecap="round"
+                stroke-dasharray="264" stroke-dashoffset="0" />
+              <defs>
+                <linearGradient id="scanGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#00e5ff" />
+                  <stop offset="100%" stop-color="#6366f1" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="scan-inner">🫁</div>
+          </div>
+          <div>
+            <div class="scan-label" id="scanLabel">INITIALISING MODEL...</div>
+          </div>
+          <div class="scan-progress">
+            <div class="scan-bar" id="scanBar" style="width:0%"></div>
+          </div>
+          <div class="scan-steps" id="scanSteps">
+            <div class="scan-step" id="ss1">⟳ Loading audio features...</div>
+            <div class="scan-step" id="ss2">⟳ Extracting MFCC coefficients...</div>
+            <div class="scan-step" id="ss3">⟳ Running CNN + BiLSTM inference...</div>
+            <div class="scan-step" id="ss4">⟳ Computing disease probabilities...</div>
+            <div class="scan-step" id="ss5">⟳ Generating report...</div>
+          </div>
+        </div>
+
+        <!-- Results (hidden until analysis done) -->
+        <div id="results-section">
+          <!-- Patient card -->
+          <div class="patient-card">
+            <div class="patient-avatar" id="resAvatar">👤</div>
+            <div>
+              <div class="patient-name" id="resName">—</div>
+              <div class="patient-meta" id="resMeta">—</div>
+            </div>
+            <div class="patient-id">
+              <div class="pid-val" id="resPid">—</div>
+              <div class="pid-lbl">Patient ID</div>
+            </div>
+          </div>
+
+          <!-- PRIMARY RESULT -->
+          <div class="result-hero" style="margin-bottom:24px">
+            <div class="result-badge badge-high" id="resBadge">
+              <span>●</span> <span id="resSeverity">HIGH RISK</span>
+            </div>
+            <div class="result-disease" id="resDiseaseMain">—</div>
+            <div class="result-confidence">
+              <div class="conf-num" id="resConfNum">—%</div>
+              <div style="color:var(--text2);font-size:0.85rem;margin-top:4px">Model Confidence</div>
+            </div>
+
+            <!-- Gauge -->
+            <div class="gauge-wrap">
+              <div class="gauge">
+                <svg viewBox="0 0 160 160">
+                  <circle class="gauge-track" cx="80" cy="80" r="70" />
+                  <circle class="gauge-fill" id="gaugeFill" cx="80" cy="80" r="70" stroke="url(#gaugeGrad)" />
+                  <defs>
+                    <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#00e5ff" />
+                      <stop offset="100%" stop-color="#6366f1" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div class="gauge-center">
+                  <div class="gauge-val" id="gaugeVal">—</div>
+                  <div class="gauge-lbl">ACCURACY</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2-col grid -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px">
+            <!-- Probability bars -->
+            <div class="panel">
+              <h3 style="font-family:var(--font-head);font-weight:700;margin-bottom:20px">Disease Probabilities</h3>
+              <div class="prob-list" id="probList"></div>
+            </div>
+
+            <!-- Metrics -->
+            <div class="panel">
+              <h3 style="font-family:var(--font-head);font-weight:700;margin-bottom:20px">Model Metrics</h3>
+              <div class="metrics-grid" style="grid-template-columns:repeat(2,1fr)">
+                <div class="metric-card">
+                  <div class="metric-val" id="mAccuracy">—</div>
+                  <div class="metric-lbl">ACCURACY</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-val" id="mAuc">—</div>
+                  <div class="metric-lbl">AUC SCORE</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-val" id="mPrec">—</div>
+                  <div class="metric-lbl">PRECISION</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-val" id="mRecall">—</div>
+                  <div class="metric-lbl">RECALL</div>
+                </div>
+              </div>
+              <div style="margin-top:20px">
+                <h4 style="font-size:0.85rem;font-weight:600;margin-bottom:12px;color:var(--text2)">Detected Symptoms
+                </h4>
+                <div class="symptom-tags" id="symptomTags"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recommendation -->
+          <div class="panel" style="margin-bottom:24px">
+            <h3 style="font-family:var(--font-head);font-weight:700;margin-bottom:16px">🏥 Clinical Recommendation</h3>
+            <div class="rec-box" id="recBox">—</div>
+          </div>
+
+          <!-- Action buttons -->
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn-primary" onclick="downloadReport()">📄 Download Report</button>
+            <button class="btn-secondary" onclick="resetAll()">+ New Patient</button>
+            <button class="btn-secondary" onclick="smoothScrollTo('#db-section')">📊 View All Records</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PATIENT DATABASE -->
+  <section id="db-section">
+    <div class="wrapper">
+      <div class="section-label">Patient Database</div>
+      <h2 class="section-title">All Patient Records</h2>
+      <p class="section-sub" style="margin-bottom:24px">Every analysis is stored locally. Click a row to view the full
+        report.</p>
+
+      <div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap">
+        <input type="text" placeholder="🔍  Search patients..." id="searchInput" oninput="filterTable()"
+          style="max-width:280px">
+        <select id="filterDisease" onchange="filterTable()" style="max-width:200px">
+          <option value="">All Diseases</option>
+          <option>COVID-19 Positive</option>
+          <option>Healthy</option>
+          <option>Asthma</option>
+          <option>Bronchitis</option>
+          <option>Pneumonia</option>
+          <option>URTI</option>
+          <option>COPD</option>
+        </select>
+        <button class="btn-secondary" style="padding:12px 20px;font-size:0.875rem" onclick="exportCSV()">⬇ Export
+          CSV</button>
+      </div>
+
+      <div class="panel table-wrap">
+        <table id="patientTable">
+          <thead>
+            <tr>
+              <th>Patient ID</th>
+              <th>Name</th>
+              <th>Age</th>
+              <th>Gender</th>
+              <th>Diagnosis</th>
+              <th>Confidence</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr>
+              <td colspan="8" style="text-align:center;padding:48px;color:var(--text3)">
+                No records yet. Complete an analysis to see data here.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast">
+    <span id="toastIcon">✅</span>
+    <span id="toastMsg">Success</span>
+  </div>
+
+  <!-- ABOUT MODAL -->
+  <div class="modal-overlay" id="aboutModal">
+    <div class="modal">
+      <button class="modal-close" onclick="document.getElementById('aboutModal').classList.remove('open')">✕</button>
+      <h2>🧠 About the AI Model</h2>
+      <p style="color:var(--text2);font-size:0.875rem;margin:12px 0 24px">CNN + Bidirectional LSTM hybrid trained on the
+        Coswara dataset.</p>
+      <div style="display:flex;flex-direction:column;gap:12px;font-size:0.875rem">
+        <div class="metric-card" style="text-align:left">
+          <strong>Architecture:</strong> 2D CNN → Reshape → BiLSTM × 2 → Dense → Softmax
+        </div>
+        <div class="metric-card" style="text-align:left">
+          <strong>Input Features:</strong> MFCC (40 coeff) + Delta + Delta² → 40×216×3 tensor
+        </div>
+        <div class="metric-card" style="text-align:left">
+          <strong>Training Data:</strong> Coswara, COUGHVID, ICBHI Respiratory Sound Database
+        </div>
+        <div class="metric-card" style="text-align:left">
+          <strong>Dataset Classes:</strong> Healthy, COVID-19, Asthma, Bronchitis, Pneumonia, URTI, COPD
+        </div>
+        <div class="metrics-grid" style="grid-template-columns:repeat(2,1fr);margin-top:8px">
+          <div class="metric-card">
+            <div class="metric-val" style="font-size:1.2rem">94.2%</div>
+            <div class="metric-lbl">TEST ACCURACY</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-val" style="font-size:1.2rem">0.967</div>
+            <div class="metric-lbl">AUC SCORE</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-val" style="font-size:1.2rem">0.931</div>
+            <div class="metric-lbl">PRECISION</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-val" style="font-size:1.2rem">0.918</div>
+            <div class="metric-lbl">RECALL</div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:0.75rem;color:var(--text3);margin-top:20px">⚠️ This tool is for research & screening only. Not
+        a substitute for clinical diagnosis.</p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
