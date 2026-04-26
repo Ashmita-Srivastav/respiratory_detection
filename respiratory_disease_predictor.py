@@ -728,7 +728,6 @@ class RespiratoryDiseaseTrainer:
         plt.xticks(rotation=45, ha='right')
         plt.tight_layout()
         plt.savefig(os.path.join(cfg.OUTPUT_DIR, 'confusion_matrix.png'), dpi=150)
-        plt.show()
         print(f"✅ Confusion matrix saved to {cfg.OUTPUT_DIR}/confusion_matrix.png")
 
     def plot_training_history(self):
@@ -759,7 +758,6 @@ class RespiratoryDiseaseTrainer:
         plt.suptitle('CNN-BiLSTM Training History', fontsize=14)
         plt.tight_layout()
         plt.savefig(os.path.join(cfg.OUTPUT_DIR, 'training_history.png'), dpi=150)
-        plt.show()
         print(f"✅ Training history saved to {cfg.OUTPUT_DIR}/training_history.png")
 
     def save_artifacts(self):
@@ -822,6 +820,9 @@ class RespiratoryDiseasePredictor:
         Returns:
             dict: Prediction results with disease, confidence, and symptoms
         """
+        if self.model is None or self.label_encoder is None:
+            return {"error": "Model files not loaded. Please ensure models/respiratory_cnn_lstm.h5 and models/label_encoder.pkl exist."}
+
         if not os.path.exists(audio_path):
             return {"error": f"File not found: {audio_path}"}
 
