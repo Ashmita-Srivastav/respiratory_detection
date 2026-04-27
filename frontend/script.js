@@ -542,3 +542,12 @@ function showToast(msg, type = 'success') {
     clearTimeout(toast._timeout);
     toast._timeout = setTimeout(() => { toast.classList.remove('show'); }, 3500);
 }
+const formData = new FormData();
+formData.append("file", fileInput.files[0]);
+
+fetch("https://your-render-url.onrender.com/predict", {
+  method: "POST",
+  body: formData
+})
+.then(res => res.json())
+.then(data => console.log(data));
