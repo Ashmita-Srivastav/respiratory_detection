@@ -4,3 +4,4 @@ librosa
 numpy
 scipy
 scikit-learn
+python-multipart
