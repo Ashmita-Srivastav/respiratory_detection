@@ -545,7 +545,7 @@ function showToast(msg, type = 'success') {
 const formData = new FormData();
 formData.append("file", fileInput.files[0]);
 
-fetch("https://your-render-url.onrender.com/predict", {
+fetch("https://pneumoscan-ai-bm07.onrender.com/predict", {
   method: "POST",
   body: formData
 })
