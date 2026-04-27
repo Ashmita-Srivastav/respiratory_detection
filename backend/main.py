@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 import librosa
 
 app = FastAPI()
@@ -15,3 +16,11 @@ async def predict(file: UploadFile):
     prediction = "Healthy"
 
     return {"prediction": prediction}
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
